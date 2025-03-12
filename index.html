@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Senhas - SEMED (Administrador)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --cor-azul-escuro: #131f45;
+            --cor-amarela: #f6be1f;
+            --cor-cinza-claro: #e0e0e0;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .cabecalho, .rodape {
+            background-color: var(--cor-azul-escuro);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .conteudo-principal {
+            background-color: var(--cor-amarela);
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .campo-senha {
+            background-color: var(--cor-cinza-claro);
+            min-height: 250px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            font-weight: bold;
+        }
+        
+        .titulo-senha {
+            color: white;
+            font-size: 24px;
+        }
+        
+        .logo {
+            width: 100px;
+        }
+        
+        .texto-rodape {
+            font-size: 16px;
+        }
+        
+        .btn-senha {
+            background-color: var(--cor-cinza-claro);
+            color: var(--cor-azul-escuro);
+            font-weight: bold;
+            border: 2px solid var(--cor-azul-escuro);
+            padding: 10px 15px;
+            border-radius: 10px;
+            width: 100%;
+            margin-bottom: 15px;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+        
+        .btn-senha:hover {
+            background-color: var(--cor-azul-escuro);
+            color: white;
+        }
+        
+        .painel-admin {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .senha-item {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: var(--cor-cinza-claro);
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .btn-reset {
+            background-color: #dc3545;
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .btn-reset:hover {
+            background-color: #bb2d3b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela 1: Interface principal-->
+    <div class="container my-4" id="tela-publica">
+        <!-- Cabeçalho -->
+        <div class="cabecalho d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <img src="./assets/img/logoSemed.png" alt="Logo SEMED" class="logo">
+            </div>
+            <div>
+                <h1 class="titulo-senha">Sistema de senhas</h1>
+            </div>
+        </div>
+        
+        <!-- Conteúdo Principal -->
+        <div class="conteudo-principal">
+            <div class="row">
+                <div class="col-md-4">
+                    <h2 class="text-white text-center mb-4">Chamar próxima senha</h2>
+                    <button class="btn-senha mb-3" id="btn-geral" disabled>Geral</button>
+                    <button class="btn-senha" id="btn-preferencial" disabled>Preferêncial</button>
+                </div>
+                <div class="col-md-4">
+                    <h2 class="text-white text-center mb-4">Senha atual</h2>
+                    <div class="campo-senha" id="senha-atual">-</div>
+                </div>
+                <div class="col-md-4">
+                    <h2 class="text-white text-center mb-4">Lista de senhas chamadas</h2>
+                    <div class="campo-senha" id="senhas-chamadas">
+                        <ul class="list-unstyled" id="lista-senhas">
+                            <!-- Senhas chamadas aparecerão aqui -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Rodapé -->
+        <div class="rodape">
+            <div class="row align-items-center">
+                <div class="col-md-4 d-flex">
+                    <img src="./assets/img/logoSemed.png" alt="Logo SEMED" class="logo me-3">
+                    <img src="./assets/img/logoPrefeitura.png" alt="Logo Socorro" class="logo">
+                </div>
+                <div class="col-md-8 text-md-end">
+                    <h2 class="titulo-senha mb-2">Sistema de senhas</h2>
+                    <p class="texto-rodape m-0">Núcleo de Tecnologia de Ensino e Informação Educacional</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Botão de acesso ao painel administrativo -->
+        <div class="text-end mt-3">
+            <button class="btn btn-dark" id="btn-admin-login">Painel Admin</button>
+        </div>
+    </div>
+    
+    <!-- Tela de Login Admin (login:admin senha:12345) -->
+    <div class="container my-4 d-none" id="tela-login">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h3>Login Administrativo</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="form-login">
+                            <div class="mb-3">
+                                <label for="usuario" class="form-label">Usuário</label>
+                                <input type="text" class="form-control" id="usuario" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="senha" class="form-label">Senha</label>
+                                <input type="password" class="form-control" id="senha" required>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button type="submit" class="btn btn-primary">Entrar</button>
+                                <button type="button" class="btn btn-secondary" id="btn-voltar-login">Voltar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tela 2: Painel Administrativo-->
+    <div class="container my-4 d-none" id="tela-admin">
+        <div class="cabecalho d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <img src="./assets/img/logoSemed.png" alt="Logo SEMED" class="logo">
+            </div>
+            <div>
+                <h1 class="titulo-senha">Painel Administrativo - Sistema de senhas</h1>
+            </div>
+        </div>
+        
+        <div class="painel-admin">
+            <h2 class="mb-4">Gerenciamento de Senhas</h2>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h3>Senhas Gerais</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="qtd-geral" class="form-label">Quantidade de senhas</label>
+                                <input type="number" class="form-control" id="qtd-geral" value="0" min="0">
+                            </div>
+                            <div class="mb-3">
+                                <label for="prefixo-geral" class="form-label">Prefixo</label>
+                                <input type="text" class="form-control" id="prefixo-geral" value="G" maxlength="1">
+                            </div>
+                            <button class="btn btn-success w-100" id="btn-gerar-geral">Gerar Senhas</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h3>Senhas Preferenciais</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="qtd-preferencial" class="form-label">Quantidade de senhas</label>
+                                <input type="number" class="form-control" id="qtd-preferencial" value="0" min="0">
+                            </div>
+                            <div class="mb-3">
+                                <label for="prefixo-preferencial" class="form-label">Prefixo</label>
+                                <input type="text" class="form-control" id="prefixo-preferencial" value="P" maxlength="1">
+                            </div>
+                            <button class="btn btn-success w-100" id="btn-gerar-preferencial">Gerar Senhas</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h3>Fila de Senhas Gerais</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="fila-geral">
+                                <p class="text-center text-muted">Nenhuma senha gerada</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h3>Fila de Senhas Preferenciais</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="fila-preferencial">
+                                <p class="text-center text-muted">Nenhuma senha gerada</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-reset" id="btn-reset">Zerar Sistema</button>
+                <div>
+                    <button class="btn btn-secondary me-2" id="btn-voltar-admin">Voltar para visualização</button>
+                    <button class="btn btn-danger" id="btn-logout">Sair</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de confirmação para reset -->
+        <div class="modal fade" id="modalReset" tabindex="-1" aria-labelledby="modalResetLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="modalResetLabel">Confirmar Reset</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Tem certeza que deseja zerar o sistema?</p>
+                        <p class="text-danger fw-bold">Esta ação irá limpar todas as senhas geradas, senhas chamadas e a senha atual. Esta ação não pode ser desfeita.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-danger" id="btn-confirmar-reset">Sim, zerar sistema</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variáveis de controle
+            let senhasGerais = [];
+            let senhasPreferenciais = [];
+            let senhasChamadas = [];
+            let senhaAtual = null;
+            
+            // Elementos DOM
+            const telaPublica = document.getElementById('tela-publica');
+            const telaLogin = document.getElementById('tela-login');
+            const telaAdmin = document.getElementById('tela-admin');
+            
+            const btnGeral = document.getElementById('btn-geral');
+            const btnPreferencial = document.getElementById('btn-preferencial');
+            const campoSenhaAtual = document.getElementById('senha-atual');
+            const listaSenhas = document.getElementById('lista-senhas');
+            
+            const btnAdminLogin = document.getElementById('btn-admin-login');
+            const btnVoltarLogin = document.getElementById('btn-voltar-login');
+            const formLogin = document.getElementById('form-login');
+            
+            const qtdGeral = document.getElementById('qtd-geral');
+            const prefixoGeral = document.getElementById('prefixo-geral');
+            const btnGerarGeral = document.getElementById('btn-gerar-geral');
+            
+            const qtdPreferencial = document.getElementById('qtd-preferencial');
+            const prefixoPreferencial = document.getElementById('prefixo-preferencial');
+            const btnGerarPreferencial = document.getElementById('btn-gerar-preferencial');
+            
+            const filaGeral = document.getElementById('fila-geral');
+            const filaPreferencial = document.getElementById('fila-preferencial');
+            
+            const btnVoltarAdmin = document.getElementById('btn-voltar-admin');
+            const btnLogout = document.getElementById('btn-logout');
+            const btnReset = document.getElementById('btn-reset');
+            const btnConfirmarReset = document.getElementById('btn-confirmar-reset');
+            
+            // Modal de reset
+            const modalReset = new bootstrap.Modal(document.getElementById('modalReset'));
+            
+            // Credenciais admin (em uma aplicação real, isso seria validado no servidor)
+            const adminCredenciais = {
+                usuario: 'admin',
+                senha: '12345'
+            };
+            
+            // Funções
+            function atualizarBotoes() {
+                btnGeral.disabled = senhasGerais.length === 0;
+                btnPreferencial.disabled = senhasPreferenciais.length === 0;
+            }
+            
+            function atualizarSenhaAtual(senha) {
+                senhaAtual = senha;
+                campoSenhaAtual.textContent = senha || '-';
+                
+                if (senha) {
+                    // Adicionar à lista de senhas chamadas
+                    senhasChamadas.unshift(senha);
+                    
+                    // Manter apenas as últimas 5 senhas na lista
+                    if (senhasChamadas.length > 5) {
+                        senhasChamadas.pop();
+                    }
+                    
+                    // Atualizar lista visual
+                    atualizarListaSenhasChamadas();
+                }
+            }
+            
+            function atualizarListaSenhasChamadas() {
+                listaSenhas.innerHTML = '';
+                
+                if (senhasChamadas.length === 0) {
+                    const li = document.createElement('li');
+                    li.textContent = 'Nenhuma senha chamada';
+                    li.className = 'text-center text-muted';
+                    listaSenhas.appendChild(li);
+                } else {
+                    senhasChamadas.forEach(senha => {
+                        const li = document.createElement('li');
+                        li.textContent = senha;
+                        li.className = 'fs-4 text-center mb-2';
+                        listaSenhas.appendChild(li);
+                    });
+                }
+            }
+            
+            function atualizarFilas() {
+                // Atualizar fila de senhas gerais
+                if (senhasGerais.length === 0) {
+                    filaGeral.innerHTML = '<p class="text-center text-muted">Nenhuma senha gerada</p>';
+                } else {
+                    filaGeral.innerHTML = '';
+                    senhasGerais.forEach((senha, index) => {
+                        const senhaItem = document.createElement('div');
+                        senhaItem.className = 'senha-item';
+                        senhaItem.innerHTML = `
+                            <span>${senha}</span>
+                            <button class="btn btn-sm btn-danger btn-remover-geral" data-index="${index}">Remover</button>
+                        `;
+                        filaGeral.appendChild(senhaItem);
+                    });
+                    
+                    // Adicionar eventos aos botões remover
+                    document.querySelectorAll('.btn-remover-geral').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const index = parseInt(this.getAttribute('data-index'));
+                            senhasGerais.splice(index, 1);
+                            atualizarFilas();
+                            atualizarBotoes();
+                            salvarDados();
+                        });
+                    });
+                }
+                
+                // Atualizar fila de senhas preferenciais
+                if (senhasPreferenciais.length === 0) {
+                    filaPreferencial.innerHTML = '<p class="text-center text-muted">Nenhuma senha gerada</p>';
+                } else {
+                    filaPreferencial.innerHTML = '';
+                    senhasPreferenciais.forEach((senha, index) => {
+                        const senhaItem = document.createElement('div');
+                        senhaItem.className = 'senha-item';
+                        senhaItem.innerHTML = `
+                            <span>${senha}</span>
+                            <button class="btn btn-sm btn-danger btn-remover-preferencial" data-index="${index}">Remover</button>
+                        `;
+                        filaPreferencial.appendChild(senhaItem);
+                    });
+                    
+                    // Adicionar eventos aos botões remover
+                    document.querySelectorAll('.btn-remover-preferencial').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const index = parseInt(this.getAttribute('data-index'));
+                            senhasPreferenciais.splice(index, 1);
+                            atualizarFilas();
+                            atualizarBotoes();
+                            salvarDados();
+                        });
+                    });
+                }
+            }
+            
+            function gerarSenhas(tipo, quantidade, prefixo) {
+                const senhas = [];
+                for (let i = 1; i <= quantidade; i++) {
+                    const numero = i.toString().padStart(3, '0');
+                    senhas.push(`${prefixo}${numero}`);
+                }
+                
+                if (tipo === 'geral') {
+                    senhasGerais = [...senhasGerais, ...senhas];
+                } else {
+                    senhasPreferenciais = [...senhasPreferenciais, ...senhas];
+                }
+                
+                atualizarFilas();
+                atualizarBotoes();
+                salvarDados();
+            }
+            
+            function resetarSistema() {
+                // Limpar todas as senhas
+                senhasGerais = [];
+                senhasPreferenciais = [];
+                senhasChamadas = [];
+                senhaAtual = null;
+                
+                // Atualizar interfaces
+                campoSenhaAtual.textContent = '-';
+                atualizarFilas();
+                atualizarBotoes();
+                atualizarListaSenhasChamadas();
+                
+                // Limpar localStorage
+                localStorage.removeItem('senhasGerais');
+                localStorage.removeItem('senhasPreferenciais');
+                localStorage.removeItem('senhasChamadas');
+                localStorage.removeItem('senhaAtual');
+                
+                // Feedback visual
+                alert('Sistema zerado com sucesso!');
+            }
+            
+            function salvarDados() {
+                localStorage.setItem('senhasGerais', JSON.stringify(senhasGerais));
+                localStorage.setItem('senhasPreferenciais', JSON.stringify(senhasPreferenciais));
+                localStorage.setItem('senhasChamadas', JSON.stringify(senhasChamadas));
+                localStorage.setItem('senhaAtual', senhaAtual);
+            }
+            
+            function carregarDados() {
+                const geraisSalvas = localStorage.getItem('senhasGerais');
+                const preferenciaisSalvas = localStorage.getItem('senhasPreferenciais');
+                const chamadasSalvas = localStorage.getItem('senhasChamadas');
+                const senhaAtualSalva = localStorage.getItem('senhaAtual');
+                
+                if (geraisSalvas) senhasGerais = JSON.parse(geraisSalvas);
+                if (preferenciaisSalvas) senhasPreferenciais = JSON.parse(preferenciaisSalvas);
+                if (chamadasSalvas) senhasChamadas = JSON.parse(chamadasSalvas);
+                if (senhaAtualSalva) atualizarSenhaAtual(senhaAtualSalva);
+                
+                atualizarFilas();
+                atualizarBotoes();
+                atualizarListaSenhasChamadas();
+            }
+            
+            // Navegação entre telas
+            btnAdminLogin.addEventListener('click', function() {
+                telaPublica.classList.add('d-none');
+                telaLogin.classList.remove('d-none');
+            });
+            
+            btnVoltarLogin.addEventListener('click', function() {
+                telaLogin.classList.add('d-none');
+                telaPublica.classList.remove('d-none');
+            });
+            
+            btnVoltarAdmin.addEventListener('click', function() {
+                telaAdmin.classList.add('d-none');
+                telaPublica.classList.remove('d-none');
+            });
+            
+            btnLogout.addEventListener('click', function() {
+                telaAdmin.classList.add('d-none');
+                telaPublica.classList.remove('d-none');
+            });
+            
+            // Login administrativo
+            formLogin.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const usuario = document.getElementById('usuario').value;
+                const senha = document.getElementById('senha').value;
+                
+                if (usuario === adminCredenciais.usuario && senha === adminCredenciais.senha) {
+                    telaLogin.classList.add('d-none');
+                    telaAdmin.classList.remove('d-none');
+                    document.getElementById('usuario').value = '';
+                    document.getElementById('senha').value = '';
+                } else {
+                    alert('Credenciais inválidas!');
+                }
+            });
+            
+            // Resetar sistema
+            btnReset.addEventListener('click', function() {
+                modalReset.show();
+            });
+            
+            btnConfirmarReset.addEventListener('click', function() {
+                resetarSistema();
+                modalReset.hide();
+            });
+            
+            // Chamar senhas
+            btnGeral.addEventListener('click', function() {
+                if (senhasGerais.length > 0) {
+                    const senha = senhasGerais.shift();
+                    atualizarSenhaAtual(senha);
+                    atualizarFilas();
+                    atualizarBotoes();
+                    salvarDados();
+                    
+                    // Efeito sonoro e visual
+                    const audio = new Audio('beep.mp3'); // Adicione um arquivo de som
+                    audio.play().catch(e => console.log('Erro ao reproduzir áudio:', e));
+                    
+                    // Piscar a tela
+                    campoSenhaAtual.classList.add('bg-warning');
+                    setTimeout(() => {
+                        campoSenhaAtual.classList.remove('bg-warning');
+                    }, 1000);
+                }
+            });
+            
+            btnPreferencial.addEventListener('click', function() {
+                if (senhasPreferenciais.length > 0) {
+                    const senha = senhasPreferenciais.shift();
+                    atualizarSenhaAtual(senha);
+                    atualizarFilas();
+                    atualizarBotoes();
+                    salvarDados();
+                    
+                    // Efeito sonoro e visual
+                    const audio = new Audio('beep.mp3'); // Adicione um arquivo de som
+                    audio.play().catch(e => console.log('Erro ao reproduzir áudio:', e));
+                    
+                    // Piscar a tela
+                    campoSenhaAtual.classList.add('bg-warning');
+                    setTimeout(() => {
+                        campoSenhaAtual.classList.remove('bg-warning');
+                    }, 1000);
+                }
+            });
+            
+            // Geração de senhas
+            btnGerarGeral.addEventListener('click', function() {
+                const quantidade = parseInt(qtdGeral.value) || 0;
+                const prefixo = prefixoGeral.value || 'G';
+                
+                if (quantidade > 0) {
+                    gerarSenhas('geral', quantidade, prefixo);
+                    qtdGeral.value = 0;
+                }
+            });
+            
+            btnGerarPreferencial.addEventListener('click', function() {
+                const quantidade = parseInt(qtdPreferencial.value) || 0;
+                const prefixo = prefixoPreferencial.value || 'P';
+                
+                if (quantidade > 0) {
+                    gerarSenhas('preferencial', quantidade, prefixo);
+                    qtdPreferencial.value = 0;
+                }
+            });
+            
+            // Inicialização
+            carregarDados();
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
